@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Crawler {
 
@@ -14,27 +15,19 @@ public class Crawler {
 
     private MDWriter mdWriter;
 
-    private boolean overviewWritten;
-
     private Translator translator;
-
-    private String targetTranslationLanguage;
-    private String sourceLanguage;
 
     private int depthToCrawl;
 
 
     public Crawler(String websiteName, int depthToCrawl, String targetTranslationLanguage){
 
-        this.overviewWritten = false;
         this.visitedWebsites = new ArrayList<>();
         this.mdWriter=new MDWriter(Variables.NAME_OF_OUTPUTFILE);
         this.translator = new Translator(targetTranslationLanguage);
         this.depthToCrawl = depthToCrawl;
 
-        this.targetTranslationLanguage = targetTranslationLanguage;
-
-        this.sourceLanguage = generateSourceLanguageOfWebsite(websiteName);
+        String sourceLanguage = generateSourceLanguageOfWebsite(websiteName);
 
         String compactOverview = MDHelper.generateCompactOverview(websiteName, depthToCrawl, sourceLanguage, targetTranslationLanguage);
         this.mdWriter.writeToFile(compactOverview);
@@ -49,7 +42,7 @@ public class Crawler {
         if(!URLValidation.checkIfURLValid(websiteName)){
             return "";
         }
-        Document document = null;
+        Document document;
         try {
             document = Jsoup.connect(websiteName).userAgent("Mozilla").timeout(100000).ignoreContentType(true).ignoreHttpErrors(true).execute().parse();
             String onlyTextOfWebsite = Jsoup.parse(document.outerHtml()).text();
@@ -85,9 +78,7 @@ public class Crawler {
 
     private void writeHeadersToFile(Document document, int depth) {
         int [] headerCounter = new int[6];
-        for(int i = 0; i<headerCounter.length; i++){
-            headerCounter[i] = 1;
-        }
+        Arrays.fill(headerCounter, 1);
 
         for(Element header:document.select("h1, h2, h3, h4, h5, h6")){
             String tagName = header.tagName();
@@ -98,7 +89,7 @@ public class Crawler {
             String arrowStrShowingDepth = generateArrowStrShowingDepth(depth);
 
             headerCounter[nrOfHeader-1]++;
-            String headerText = null;
+            String headerText;
             try {
                 headerText = translator.translateText(header.text());
             } catch (IOException e) {
@@ -109,31 +100,31 @@ public class Crawler {
     }
 
     private String generateHashtags(int nrOfHeader) {
-        String hashtags = "";
+        StringBuilder hashtags = new StringBuilder();
         for(int i = 0; i<nrOfHeader; i++){
-            hashtags+="#";
+            hashtags.append("#");
         }
-        return hashtags;
+        return hashtags.toString();
     }
 
     private String generateArrowStrShowingDepth(int currentDepth){
-        String arrowStr = "";
+        StringBuilder arrowStr = new StringBuilder();
         for(int i = 0; i < depthToCrawl-currentDepth; i++){
-            arrowStr += "--";
+            arrowStr.append("--");
         }
         if(arrowStr.length()!=0){
-            arrowStr += ">";
+            arrowStr.append(">");
         }
-        return arrowStr;
+        return arrowStr.toString();
     }
 
     private String generateHeaderCounterAtTheEnd(int[] headerCounter, int nrOfHeader) {
-        String headerCounterAtTheEnd = "";
+        StringBuilder headerCounterAtTheEnd = new StringBuilder();
 
         for(int i = 1; i<=nrOfHeader;i++){
-            headerCounterAtTheEnd+= headerCounter[i-1]+".";
+            headerCounterAtTheEnd.append(headerCounter[i - 1]).append(".");
         }
-        return headerCounterAtTheEnd;
+        return headerCounterAtTheEnd.toString();
     }
 
     private Document requestURLAndWriteToFile(String url, int depth) {

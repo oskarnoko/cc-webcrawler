@@ -40,9 +40,9 @@ public class Translator {
     private String returnOnlyTheTranslationOfJson(String jsonString){
         String [] jsonLines = jsonString.split("\n");
         String formattedString = "";
-        for(int i = 0; i<jsonLines.length; i++){
-            if(jsonLines[i].contains("translatedText")){
-                formattedString=formatTheJsonLineOfTheTranslatedText(jsonLines[i]);
+        for (String jsonLine : jsonLines) {
+            if (jsonLine.contains("translatedText")) {
+                formattedString = formatTheJsonLineOfTheTranslatedText(jsonLine);
                 break;
             }
         }
@@ -52,9 +52,9 @@ public class Translator {
     private String returnOnlyTheLanguageDetectionOfJson(String jsonString){
         String [] jsonLines = jsonString.split("\n");
         String formattedString = "";
-        for(int i = 0; i<jsonLines.length; i++){
-            if(jsonLines[i].contains("language")){
-                formattedString=formatTheJsonLineOfTheTranslatedText(jsonLines[i]);
+        for (String jsonLine : jsonLines) {
+            if (jsonLine.contains("language")) {
+                formattedString = formatTheJsonLineOfTheTranslatedText(jsonLine);
                 break;
             }
         }
