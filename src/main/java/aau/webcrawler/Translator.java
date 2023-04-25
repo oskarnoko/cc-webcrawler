@@ -61,7 +61,11 @@ public class Translator {
         return formattedString;
     }
     private String formatTheJsonLineOfTheTranslatedText(String jsonLineOfTheTranslatedText) {
+
         String [] splitJsonLine = jsonLineOfTheTranslatedText.split("\"");
+        if(splitJsonLine.length<4){
+            return "";
+        }
         return splitJsonLine[3];
     }
 

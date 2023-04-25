@@ -98,7 +98,13 @@ public class Crawler {
             String arrowStrShowingDepth = generateArrowStrShowingDepth(depth);
 
             headerCounter[nrOfHeader-1]++;
-            mdWriter.writeToFile(hashtagForHeadings+" "+arrowStrShowingDepth+header.text()+" "+headerCounterAtTheEnd+"\n");
+            String headerText = null;
+            try {
+                headerText = translator.translateText(header.text());
+            } catch (IOException e) {
+                headerText = header.text();
+            }
+            mdWriter.writeToFile(hashtagForHeadings+" "+arrowStrShowingDepth+headerText+" "+headerCounterAtTheEnd+"\n");
         }
     }
 
