@@ -7,11 +7,9 @@ import java.io.IOException;
 
 public class TranslatorTest {
     private Translator testTranslator;
-    private String sourceLanguage;
     private String targetLanguage;
     @Before
     public void setUp(){
-        sourceLanguage = "en";
         targetLanguage = "de";
         testTranslator = new Translator(targetLanguage);
     }
@@ -29,10 +27,11 @@ public class TranslatorTest {
 
     @Test
     public void testTranslateTextToCorrectLanguageFromWrongLanguage() throws IOException{
+        //the translator takes the source string and searches for the language; then translates that language into the target language
         String expectedStr = "Hallo Welt";
-        String sourceStr = "Bonjour le monde";
+        String sourceStr = "Bonjour monde";
         String actualStr = testTranslator.translateText(sourceStr);
-        Assert.assertNotEquals(expectedStr, actualStr);
+        Assert.assertEquals(expectedStr, actualStr);
     }
 
     @Test
