@@ -16,49 +16,121 @@ public class Crawler {
 
     private boolean overviewWritten;
 
+    private Translator translator;
+
+    private String targetTranslationLanguage;
+    private String sourceLanguage;
+
+    private int depthToCrawl;
+
 
     public Crawler(String websiteName, int depthToCrawl, String targetTranslationLanguage){
 
         this.overviewWritten = false;
         this.visitedWebsites = new ArrayList<>();
         this.mdWriter=new MDWriter(Variables.NAME_OF_OUTPUTFILE);
+        this.translator = new Translator(targetTranslationLanguage);
+        this.depthToCrawl = depthToCrawl;
 
-        String compactOverview = MDHelper.generateCompactOverview(websiteName, depthToCrawl, "sourceTranslationLanguage", targetTranslationLanguage);
+        this.targetTranslationLanguage = targetTranslationLanguage;
+
+        this.sourceLanguage = generateSourceLanguageOfWebsite(websiteName);
+
+        String compactOverview = MDHelper.generateCompactOverview(websiteName, depthToCrawl, sourceLanguage, targetTranslationLanguage);
         this.mdWriter.writeToFile(compactOverview);
         this.mdWriter.writeToFile("<br>summary:\n");
 
-        crawl(depthToCrawl, websiteName);
+        crawlThroughWebsite(depthToCrawl, websiteName);
 
 
     }
 
-    private void crawl (int depth, String url) {
+    private String generateSourceLanguageOfWebsite(String websiteName) {
+        if(!URLValidation.checkIfURLValid(websiteName)){
+            return "";
+        }
+        Document document = null;
+        try {
+            document = Jsoup.connect(websiteName).userAgent("Mozilla").timeout(100000).ignoreContentType(true).ignoreHttpErrors(true).execute().parse();
+            String onlyTextOfWebsite = Jsoup.parse(document.outerHtml()).text();
+
+            return translator.getSourceLanguage(onlyTextOfWebsite);
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
+    private void crawlThroughWebsite(int depth, String url) {
         if(depth >= 0 ) {
             url = URLValidation.fixURL(url);
-            Document doc = request(url);
+            Document doc = requestURLAndWriteToFile(url, depth);
             if (doc!= null) {
-                for (Element link : doc.select("a[href]")) {
-                    String next_link = link.absUrl("href");
-                    next_link = URLValidation.fixURL(next_link);
-                    if(URLValidation.checkIfURLCorrect(next_link)){
-                        if(visitedWebsites.contains(next_link) == false) {
-                            crawl(depth-1, next_link);
-                        }
-                    }else{
-                        System.out.println("Enter correct URL1: "+next_link);
-                    }
-                }
-            }else{
-                if(URLValidation.checkIfURLCorrect(url)){
-                    System.out.println("Link "+url+" does not exist!");
-                }else{
-                    System.out.println("Enter correct URL2: "+url);
+                writeHeadersToFile(doc, depth);
+                findNextLinkToCrawl(doc, depth);
+            }
+        }
+    }
+
+    private void findNextLinkToCrawl(Document doc, int depth) {
+        for (Element link : doc.select("a[href]")) {
+            String next_link = link.absUrl("href");
+            next_link = URLValidation.fixURL(next_link);
+            if(URLValidation.checkIfURLValid(next_link)){
+                if(!visitedWebsites.contains(next_link)) {
+                    crawlThroughWebsite(depth-1, next_link);
                 }
             }
         }
     }
 
-    private Document request(String url) {
+    private void writeHeadersToFile(Document document, int depth) {
+        int [] headerCounter = new int[6];
+        for(int i = 0; i<headerCounter.length; i++){
+            headerCounter[i] = 1;
+        }
+
+        for(Element header:document.select("h1, h2, h3, h4, h5, h6")){
+            String tagName = header.tagName();
+            int nrOfHeader = Integer.parseInt(tagName.charAt(1)+"");
+
+            String headerCounterAtTheEnd = generateHeaderCounterAtTheEnd(headerCounter, nrOfHeader);
+            String hashtagForHeadings = generateHashtags(nrOfHeader);
+            String arrowStrShowingDepth = generateArrowStrShowingDepth(depth);
+
+            headerCounter[nrOfHeader-1]++;
+            mdWriter.writeToFile(hashtagForHeadings+" "+arrowStrShowingDepth+header.text()+" "+headerCounterAtTheEnd+"\n");
+        }
+    }
+
+    private String generateHashtags(int nrOfHeader) {
+        String hashtags = "";
+        for(int i = 0; i<nrOfHeader; i++){
+            hashtags+="#";
+        }
+        return hashtags;
+    }
+
+    private String generateArrowStrShowingDepth(int currentDepth){
+        String arrowStr = "";
+        for(int i = 0; i < depthToCrawl-currentDepth; i++){
+            arrowStr += "--";
+        }
+        if(arrowStr.length()!=0){
+            arrowStr += ">";
+        }
+        return arrowStr;
+    }
+
+    private String generateHeaderCounterAtTheEnd(int[] headerCounter, int nrOfHeader) {
+        String headerCounterAtTheEnd = "";
+
+        for(int i = 1; i<=nrOfHeader;i++){
+            headerCounterAtTheEnd+= headerCounter[i-1]+".";
+        }
+        return headerCounterAtTheEnd;
+    }
+
+    private Document requestURLAndWriteToFile(String url, int depth) {
         try {
 
             Connection.Response response = Jsoup.connect(url).userAgent("Mozilla").timeout(100000).ignoreContentType(true).ignoreHttpErrors(true).execute();
@@ -67,17 +139,17 @@ public class Crawler {
 
             int responseCode = response.statusCode();
 
+            String arrowStrShowingDepth = generateArrowStrShowingDepth(depth);
+
             if(URLValidation.checkIfHTTPStatusCodeOK(responseCode)) {
-                mdWriter.writeToFile("<br>Link: " + url+"\n");
-                System.out.println(document.title());
+                mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Link: <a>" + url+" </a>\n");
                 visitedWebsites.add(url);
                 return document;
             }else{
-                System.out.println("Broken link: " + url);
-                System.out.println(document.title());
+                mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Broken Link: <a>" + url+" </a>\n");
                 visitedWebsites.add(url);
+                return null;
             }
-            return null;
         } catch (IOException e) {
             return null;
         }

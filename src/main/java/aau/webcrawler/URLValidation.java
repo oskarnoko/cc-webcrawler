@@ -1,6 +1,9 @@
 package aau.webcrawler;
 
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class URLValidation {
 
@@ -19,12 +22,16 @@ public class URLValidation {
         }
     }
 
-    public static boolean checkIfURLCorrect(String url){
-        String regex = "(https?)://www.[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        if(url.matches(regex)){
+    public static boolean checkIfURLValid(String url){
+        try {
+            URL urlToCheck = new URL(url);
+            // Check for valid protocol (http, https, ftp, etc.)
+            urlToCheck.toURI();
             return true;
+        } catch (MalformedURLException | URISyntaxException e) {
+            // URL is not valid
+            return false;
         }
-        return false;
     }
 
 }

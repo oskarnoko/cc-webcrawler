@@ -11,12 +11,14 @@ public class Translator {
     private String targetLanguage;
     private final String url = "https://google-translator9.p.rapidapi.com/v2";
 
-    public Translator(String sourceLanguage, String targetLanguage) {
-        this.sourceLanguage = sourceLanguage;
+    public Translator(String targetLanguage) {
         this.targetLanguage = targetLanguage;
     }
 
-    private String createJsonDataToBeTranslated(String textTotranslate){
+    private String createJsonDataToBeTranslated(String textTotranslate) throws IOException {
+        if(sourceLanguage==null){
+            sourceLanguage = this.getSourceLanguage(textTotranslate);
+        }
         return "{\r\"q\": \""+textTotranslate+"\",\r\"source\": \""+sourceLanguage+"\",\r\"target\": \""+targetLanguage+"\",\r\"format\": \"text\"\r}";
     }
 
@@ -78,10 +80,12 @@ public class Translator {
     }
 
     public String getSourceLanguage(String detectLanguageOfThisString) throws IOException{
-        String jsonData = createJsonDataToBeLanguageDetected(detectLanguageOfThisString);
-        String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData,url+"/detect");
-        String detectedLanguage = returnOnlyTheLanguageDetectionOfJson(receivedJson);
-        return detectedLanguage;
+        if(sourceLanguage==null){
+            String jsonData = createJsonDataToBeLanguageDetected(detectLanguageOfThisString);
+            String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData,url+"/detect");
+            sourceLanguage = returnOnlyTheLanguageDetectionOfJson(receivedJson);
+        }
+        return sourceLanguage;
     }
 
 }
