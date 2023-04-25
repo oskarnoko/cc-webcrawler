@@ -40,7 +40,7 @@ public class Crawler {
         this.mdWriter.writeToFile(compactOverview);
         this.mdWriter.writeToFile("<br>summary:\n");
 
-        crawlThroughWebsite(depthToCrawl, websiteName);
+
 
 
     }
@@ -60,7 +60,7 @@ public class Crawler {
         }
     }
 
-    private void crawlThroughWebsite(int depth, String url) {
+    public void crawlThroughWebsite(int depth, String url) {
         if(depth >= 0 ) {
             url = URLValidation.fixURL(url);
             Document doc = requestURLAndWriteToFile(url, depth);

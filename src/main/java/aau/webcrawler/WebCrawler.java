@@ -5,17 +5,18 @@ import java.util.Scanner;
 public class WebCrawler {
 
 
-    private Scanner inScanner;
+    private final Scanner inScanner= new Scanner(System.in);
 
     private String url;
     private int depth;
     private String targetLanguage;
 
     public WebCrawler(){
-        this.inScanner = new Scanner(System.in);
         readInput();
 
         Crawler crawler = new Crawler(this.url, this.depth, this.targetLanguage);
+
+        crawler.crawlThroughWebsite(this.depth, this.url);
 
     }
 
@@ -28,30 +29,30 @@ public class WebCrawler {
         System.out.println("----------------------------------------------------------------------");
         String input = inScanner.nextLine();
 
-        String [] splittedInput = input.split(" ");
+        String [] splitInput = input.split(" ");
 
-        if(splittedInput.length!=3){
+        if(splitInput.length!=3){
             System.out.println("Enter correct amount of inputs!");
             System.exit(0);
         }
-        if(!splittedInput[0].matches("[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")){
+        if(!splitInput[0].matches("[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")){
             System.out.println("Enter correct website!");
             System.exit(0);
         }
 
-        if(!splittedInput[1].matches("[0-9]")){
+        if(!splitInput[1].matches("[0-9]")){
             System.out.println("Enter correct depth of website");
             System.exit(0);
         }
 
-        if(splittedInput[2].length()>5||splittedInput[2].length()<2||!splittedInput[2].matches("[a-z-]*")){
+        if(splitInput[2].length()>5||splitInput[2].length()<2||!splitInput[2].matches("[a-z-]*")){
            System.out.println("Enter correct target language according to ISO-639-1");
            System.exit(0);
         }
 
-        this.url = splittedInput[0];
-        this.depth = Integer.parseInt(splittedInput[1]);
-        this.targetLanguage = splittedInput[2];
+        this.url = splitInput[0];
+        this.depth = Integer.parseInt(splitInput[1]);
+        this.targetLanguage = splitInput[2];
 
     }
 
