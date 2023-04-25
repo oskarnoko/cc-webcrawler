@@ -9,32 +9,30 @@ public class Translator {
 
     private String sourceLanguage;
     private String targetLanguage;
-    private String apiKey = "514029dd4amshfb834a2dc204ac9p15e59ajsn4de57f356dd4";
-    private String url = "https://google-translator9.p.rapidapi.com/v2";
+    private final String url = "https://google-translator9.p.rapidapi.com/v2";
 
     public Translator(String sourceLanguage, String targetLanguage) {
         this.sourceLanguage = sourceLanguage;
         this.targetLanguage = targetLanguage;
     }
 
-    private String createJsonDataToBeTransferred(String textTotranslate){
+    private String createJsonDataToBeTranslated(String textTotranslate){
         return "{\r\"q\": \""+textTotranslate+"\",\r\"source\": \""+sourceLanguage+"\",\r\"target\": \""+targetLanguage+"\",\r\"format\": \"text\"\r}";
     }
 
-    private Connection createConnection(String textTotranslate){
-        String data = createJsonDataToBeTransferred(textTotranslate);
-        Connection connection =  Jsoup.connect(url)
+    private String createJsonDataToBeLanguageDetected(String textToDetectLanguage){
+        return "{\r\n    \"q\": \"" + textToDetectLanguage + "\"\r\n}";
+    }
+
+    private Connection createConnectionToRapidAPIGoogleTranslator(String jsonDataToBeTransferred, String urlOfAPI){
+        Connection connection =  Jsoup.connect(urlOfAPI)
                 .header("content-type", "application/json")
-                .header("X-RapidAPI-Key", apiKey)
-                .header("X-RapidAPI-Host", "google-translator9.p.rapidapi.com")
-                .requestBody(data)
+                .header("X-RapidAPI-Key", Variables.RAPID_API_KEY)
+                .header("X-RapidAPI-Host", Variables.RAPIC_API_HOST)
+                .requestBody(jsonDataToBeTransferred)
                 .method(Connection.Method.POST)
                 .ignoreContentType(true);
         return connection;
-    }
-
-    private Connection.Response executeConnectionToTranslator(Connection connection) throws IOException {
-        return connection.execute();
     }
 
     private String returnOnlyTheTranslationOfJson(String jsonString){
@@ -48,17 +46,42 @@ public class Translator {
         }
         return formattedString;
     }
+
+    private String returnOnlyTheLanguageDetectionOfJson(String jsonString){
+        String [] jsonLines = jsonString.split("\n");
+        String formattedString = "";
+        for(int i = 0; i<jsonLines.length; i++){
+            if(jsonLines[i].contains("language")){
+                formattedString=formatTheJsonLineOfTheTranslatedText(jsonLines[i]);
+                break;
+            }
+        }
+        return formattedString;
+    }
     private String formatTheJsonLineOfTheTranslatedText(String jsonLineOfTheTranslatedText) {
         String [] splitJsonLine = jsonLineOfTheTranslatedText.split("\"");
         return splitJsonLine[3];
     }
 
+    private String sendJsonDataToAPIURLAndReturnReceivedJson(String jsonData, String url) throws IOException{
+        Connection connection= createConnectionToRapidAPIGoogleTranslator(jsonData, url);
+        Connection.Response response = connection.execute();
+        String receivedJson = response.body();
+        return receivedJson;
+    }
+
     public String translateText(String textTotranslate) throws IOException {
-        Connection connection= createConnection(textTotranslate);
-        Connection.Response response = executeConnectionToTranslator(connection);
-        String json = response.body();
-        String translatedText = returnOnlyTheTranslationOfJson(json);
+        String jsonData = createJsonDataToBeTranslated(textTotranslate);
+        String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData, url);
+        String translatedText = returnOnlyTheTranslationOfJson(receivedJson);
         return translatedText;
+    }
+
+    public String getSourceLanguage(String detectLanguageOfThisString) throws IOException{
+        String jsonData = createJsonDataToBeLanguageDetected(detectLanguageOfThisString);
+        String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData,url+"/detect");
+        String detectedLanguage = returnOnlyTheLanguageDetectionOfJson(receivedJson);
+        return detectedLanguage;
     }
 
 }
