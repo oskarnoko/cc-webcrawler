@@ -19,12 +19,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String url = "https://www.klutronic.com";
-        /*System.out.println(checkIfURLCorrect(url));
-        int depth = 1;
-        String targetLanguage = "";
-        visitedWebsites = new ArrayList<>();
-        crawl(depth, url);*/
+        String url = "https://klutronic.com";
+        int depth = 2;
+
+        Crawler crawl = new Crawler(url, depth,  "");
 
     }
 

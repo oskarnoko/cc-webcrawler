@@ -22,7 +22,7 @@ public class MDWriter {
 
     /***
      * Creates a new File, that does not exist by adding _Nr to the name of the file
-     * @throws IOException when the file does not exist
+     * @throws IOException when an IO-Error occurred
      */
     private void createCompletelyNewFile() throws IOException{
         File outputFile = createFileThatDoesNotExistAndRenameNameOfFile();
