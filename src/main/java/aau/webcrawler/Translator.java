@@ -76,8 +76,8 @@ public class Translator {
         return receivedJson;
     }
 
-    public String translateText(String textTotranslate) throws IOException {
-        String jsonData = createJsonDataToBeTranslated(textTotranslate);
+    public String translateText(String textToTranslate) throws IOException {
+        String jsonData = createJsonDataToBeTranslated(textToTranslate);
         String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData, url);
         String translatedText = returnOnlyTheTranslationOfJson(receivedJson);
         return translatedText;
