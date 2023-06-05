@@ -11,8 +11,6 @@ import java.util.Arrays;
 
 public class Crawler {
 
-    private ArrayList<String> visitedWebsites;
-
     private MDWriter mdWriter;
 
     private Translator translator;
@@ -22,7 +20,6 @@ public class Crawler {
 
     public Crawler(String websiteName, int depthToCrawl, String targetTranslationLanguage){
 
-        this.visitedWebsites = new ArrayList<>();
         this.mdWriter=new MDWriter(Variables.NAME_OF_OUTPUTFILE);
         this.translator = new Translator(targetTranslationLanguage);
         this.depthToCrawl = depthToCrawl;
@@ -69,7 +66,7 @@ public class Crawler {
             String next_link = link.absUrl("href");
             next_link = URLValidation.fixURL(next_link);
             if(URLValidation.checkIfURLValid(next_link)){
-                if(!visitedWebsites.contains(next_link)) {
+                if(!WebCrawler.visitedWebsites.contains(next_link)) {
                     crawlThroughWebsite(depth-1, next_link);
                 }
             }
@@ -140,11 +137,11 @@ public class Crawler {
 
             if(URLValidation.checkIfHTTPStatusCodeOK(responseCode)) {
                 mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Link: <a>" + url+" </a>\n");
-                visitedWebsites.add(url);
+                WebCrawler.visitedWebsites.add(url);
                 return document;
             }else{
                 mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Broken Link: <a>" + url+" </a>\n");
-                visitedWebsites.add(url);
+                WebCrawler.visitedWebsites.add(url);
                 return null;
             }
         } catch (IOException e) {

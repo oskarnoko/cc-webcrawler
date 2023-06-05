@@ -76,14 +76,14 @@ public class Translator {
         return receivedJson;
     }
 
-    public String translateText(String textToTranslate) throws IOException {
+    public synchronized String translateText(String textToTranslate) throws IOException {
         String jsonData = createJsonDataToBeTranslated(textToTranslate);
         String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData, url);
         String translatedText = returnOnlyTheTranslationOfJson(receivedJson);
         return translatedText;
     }
 
-    public String getSourceLanguage(String detectLanguageOfThisString) throws IOException{
+    public synchronized String getSourceLanguage(String detectLanguageOfThisString) throws IOException{
         if(sourceLanguage==null){
             String jsonData = createJsonDataToBeLanguageDetected(detectLanguageOfThisString);
             String receivedJson = sendJsonDataToAPIURLAndReturnReceivedJson(jsonData,url+"/detect");

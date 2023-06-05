@@ -1,9 +1,11 @@
 package aau.webcrawler;
 
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebCrawler {
 
+    public static ConcurrentLinkedQueue visitedWebsites;
 
     private final Scanner inScanner= new Scanner(System.in);
 
@@ -13,6 +15,8 @@ public class WebCrawler {
 
     public WebCrawler(){
         readInput();
+
+        visitedWebsites = new ConcurrentLinkedQueue();
 
         Crawler crawler = new Crawler(this.url, this.depth, this.targetLanguage);
 
