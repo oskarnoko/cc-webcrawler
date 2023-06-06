@@ -54,9 +54,9 @@ public class Crawler {
     public void crawlThroughWebsite(int depth, String url) {
         if(depth >= 0 ) {
             url = URLValidation.fixURL(url);
-            Document doc = requestURLAndWriteToFile(url, depth);
+            Document doc = requestURLAndAddToCrawledWebsiteInformation(url, depth);
             if (doc!= null) {
-                writeHeadersToFile(doc, depth);
+                addHeadersToCrawledWebsiteInformation(doc, depth);
                 findNextLinkToCrawl(doc, depth);
             }
             writeCrawledWebsiteInformation();
@@ -89,7 +89,7 @@ public class Crawler {
 
     }
 
-    private void writeHeadersToFile(Document document, int depth) {
+    private void addHeadersToCrawledWebsiteInformation(Document document, int depth) {
         int [] headerCounter = new int[6];
         Arrays.fill(headerCounter, 1);
 
@@ -140,7 +140,7 @@ public class Crawler {
         return headerCounterAtTheEnd.toString();
     }
 
-    private Document requestURLAndWriteToFile(String url, int depth) {
+    private Document requestURLAndAddToCrawledWebsiteInformation(String url, int depth) {
         try {
 
             Connection.Response response = Jsoup.connect(url).userAgent("Mozilla").timeout(100000).ignoreContentType(true).ignoreHttpErrors(true).execute();
