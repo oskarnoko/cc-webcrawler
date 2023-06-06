@@ -47,7 +47,7 @@ public class Crawler {
 
             return translator.getSourceLanguage(onlyTextOfWebsite);
         } catch (IOException e) {
-            return "";
+            return "Error: IOException when generating Source Language of Website!";
         }
     }
 
@@ -83,8 +83,6 @@ public class Crawler {
 
     private synchronized void startNewThreadWhenURLNew(String next_link, int depth){
         if(!WebCrawler.visitedWebsites.contains(next_link)) {
-            System.out.println(depth+": "+next_link);//*****************************************************************************************************
-
             executorService.submit(()-> crawlThroughWebsite(depth-1, next_link));
             WebCrawler.threadWasAdded();
         }
@@ -110,7 +108,6 @@ public class Crawler {
             } catch (IOException e) {
                 headerText = header.text();
             }
-            //mdWriter.writeToFile(hashtagForHeadings+" "+arrowStrShowingDepth+headerText+" "+headerCounterAtTheEnd+"\n");
             crawledWebsiteInformation.add(hashtagForHeadings+" "+arrowStrShowingDepth+headerText+" "+headerCounterAtTheEnd+"\n");
         }
     }
@@ -155,12 +152,10 @@ public class Crawler {
             String arrowStrShowingDepth = generateArrowStrShowingDepth(depth);
 
             if(URLValidation.checkIfHTTPStatusCodeOK(responseCode)) {
-                //mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Link: <a>" + url+" </a>\n");
                 crawledWebsiteInformation.add("<br>"+arrowStrShowingDepth+" Link: <a>" + url+" </a>\n");
                 WebCrawler.visitedWebsites.add(url);
                 return document;
             }else{
-                //mdWriter.writeToFile("<br>"+arrowStrShowingDepth+" Broken Link: <a>" + url+" </a>\n");
                 crawledWebsiteInformation.add("<br>"+arrowStrShowingDepth+" Broken Link: <a>" + url+" </a>\n");
                 WebCrawler.visitedWebsites.add(url);
                 return null;
