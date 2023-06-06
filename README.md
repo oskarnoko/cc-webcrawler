@@ -20,4 +20,4 @@ Whenever a new site is found it's written as a link to the file and the crawler 
 
 
 Testing explanation:
-The Translator, URLValidation and MDHelper were tested, as well as the Crawler, although it is very troublesome to test this, as you'd have to mock a object of this and then write the correct answer of your test yourself (which would in most cases just result in copying the .md file as writting a correct answer of a server can be troublesome). I was not able to do this, because of my poor time management.
+The Translator, URLValidation and MDHelper were tested, as well as the Crawler, although it is very troublesome to test this, as you'd have to mock a object of this and then write the correct answer of your test yourself (which would in most cases just result in copying the .md file as writting a correct answer of a server can be troublesome). 
