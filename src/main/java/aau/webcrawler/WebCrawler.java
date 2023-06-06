@@ -1,14 +1,15 @@
 package aau.webcrawler;
 
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
 
 public class WebCrawler {
 
     public static ConcurrentLinkedQueue visitedWebsites;
-
     private final Scanner inScanner= new Scanner(System.in);
 
+    public static int sharedThreadCounter;
+    public static ExecutorService executorService;
     private String url;
     private int depth;
     private String targetLanguage;
@@ -18,10 +19,25 @@ public class WebCrawler {
 
         visitedWebsites = new ConcurrentLinkedQueue();
 
+        sharedThreadCounter = 0;
+
+        executorService = Executors.newCachedThreadPool();
+
         Crawler crawler = new Crawler(this.url, this.depth, this.targetLanguage);
 
-        crawler.crawlThroughWebsite(this.depth, this.url);
+        executorService.submit(()->crawler.crawlThroughWebsite(this.depth, this.url));
+        WebCrawler.threadWasAdded();
+    }
 
+    public synchronized static void threadWasAdded() {
+        sharedThreadCounter++;
+    }
+
+    public synchronized static void threadWasRemoved(){
+        sharedThreadCounter--;
+        if(sharedThreadCounter==0){
+            executorService.shutdown();
+        }
     }
 
     private void readInput() {
